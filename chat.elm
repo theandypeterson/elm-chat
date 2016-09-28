@@ -42,10 +42,7 @@ update msg model =
       ({ model | input = newInput }, Cmd.none)
 
     Send ->
-      ({ model | input = "" }, WebSocket.send "ws://echo.websocket.org" model.input)
-      -- ( { model | input = "" }
-      -- , Horizon.insertCmd collectionName (newMessageEncoder model.input |> toList)
-      -- )
+      ({ model | input = "" }, WebSocket.send "ws://localhost:1234/" model.input)
 
     NewMessage str ->
       ({ model | messages = (List.append model.messages [str]) }, Cmd.none)
@@ -55,7 +52,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  WebSocket.listen "ws://echo.websocket.org" NewMessage
+  WebSocket.listen "ws://localhost:1234/" NewMessage
 
 
 -- VIEW

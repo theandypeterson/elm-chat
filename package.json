@@ -1,0 +1,8 @@
+{
+  "name": "elm-chat",
+  "version": "0.1",
+  "description": "simple chat",
+  "dependencies": {
+    "express": "^4.14.0"
+  }
+}
