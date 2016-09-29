@@ -1,45 +1,29 @@
-var http = require('http');
-var server = http.createServer(function(request, response) {});
-var WebSocketServer = require('websocket').server;
-
-wsServer = new WebSocketServer({
-  httpServer: server
-});
-
-server.listen(1234, function() {
-  console.log((new Date()) + ' Server is listening on port 1234');
-});
+var express = require('express');
+var app = express();
+var expressWs = require('express-ws')(app);
 
 var count = 0;
-var clients = {};
+var clients = [];
 
-wsServer.on('request', function(r){
-  // Code here to run on connection
-  var connection = r.accept();
-  // Specific id for this client & increment count
+app.ws('/messages', function(ws,req) {
+  console.log('hit echo');
   var id = count++;
-  // Store the connection method so we can loop through & contact all clients
-  clients[id] = connection;
-  console.log((new Date()) + ' Connection accepted [' + id + ']');
+  clients.push(ws);
+  ws.send('Welcome!');
 
-  // Create event listener
-  connection.on('message', function(message) {
-
-    // The string message that was sent to us
-    var msgString = message.utf8Data;
-
-    // Loop through all clients
-    for(var i in clients){
-      // Send a message to the client with the message
-      clients[i].sendUTF(msgString);
+  ws.on('message', function(msg) {
+    console.log('received message: %s', msg);
+    for(var i in clients) {
+      clients[i].send(msg);
     }
-
   });
 
-  connection.on('close', function(reasonCode, description) {
+  ws.on('close', function(r) {
+    console.log((new Date()) + "=> " + ws  + " has disconnected.");
     delete clients[id];
-    console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
   });
 });
 
-
+app.listen(1234, function() {
+  console.log('Listening on port 1234');
+});

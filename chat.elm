@@ -19,12 +19,14 @@ main =
 type alias Model =
   { input : String
   , messages : List String
+  , name : String
+  , signedIn : Bool
   }
 
 
 init : (Model, Cmd Msg)
 init =
-  (Model "" [], Cmd.none)
+  (Model "" [] "Anon" False, Cmd.none)
 
 
 -- UPDATE
@@ -33,6 +35,7 @@ type Msg
   = Input String
   | Send
   | NewMessage String
+  | SignIn String
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -42,17 +45,20 @@ update msg model =
       ({ model | input = newInput }, Cmd.none)
 
     Send ->
-      ({ model | input = "" }, WebSocket.send "ws://localhost:1234/" model.input)
+      ({ model | input = "" }, WebSocket.send "ws://localhost:1234/messages" model.input)
 
     NewMessage str ->
       ({ model | messages = (List.append model.messages [str]) }, Cmd.none)
+
+    SignIn name ->
+      ({ model | name = name, signedIn = True }, Cmd.none)
 
 
 -- SUBSCRIPTIONS
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  WebSocket.listen "ws://localhost:1234/" NewMessage
+  WebSocket.listen "ws://localhost:1234/messages" NewMessage
 
 
 -- VIEW
