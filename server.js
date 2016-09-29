@@ -4,23 +4,22 @@ var expressWs = require('express-ws')(app);
 
 var count = 0;
 var clients = [];
+var id = -1;
 
 app.ws('/messages', function(ws,req) {
-  console.log('hit echo');
-  var id = count++;
+  id = count++;
   clients.push(ws);
-  ws.send('Welcome!');
+  console.log('connected');
 
   ws.on('message', function(msg) {
-    console.log('received message: %s', msg);
     for(var i in clients) {
       clients[i].send(msg);
     }
   });
 
   ws.on('close', function(r) {
-    console.log((new Date()) + "=> " + ws  + " has disconnected.");
     delete clients[id];
+    console.log('A client disconnected');
   });
 });
 
